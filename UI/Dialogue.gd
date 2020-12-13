@@ -17,6 +17,7 @@ func _physics_process(_delta):
 			dialogue_pos += 1
 	elif dialogue.size():
 		emit_signal("finished_dialogue")
+		hide_dialogue()
 		
 func start_dialogue(d):
 	dialogue = d.duplicate()
