@@ -1,6 +1,13 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://Player/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Player/Player.gd" type="Script" id=2]
+[ext_resource path="res://Terrain.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Target/Target.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Player/RayCast.gd" type="Script" id=5]
+[ext_resource path="res://Player/npc/NPC.tscn" type="PackedScene" id=6]
+[ext_resource path="res://npc/NPC.gd" type="Script" id=7]
+[ext_resource path="res://UI/Dialogue.gd" type="Script" id=8]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 100, 0.5, 100 )
@@ -8,20 +15,138 @@ size = Vector3( 100, 0.5, 100 )
 [sub_resource type="BoxShape" id=2]
 extents = Vector3( 50, 0.25, 50 )
 
+[sub_resource type="SphereMesh" id=3]
+radius = 0.5
+height = 1.0
+
+[sub_resource type="SpatialMaterial" id=4]
+albedo_color = Color( 1, 0, 0, 1 )
+emission_enabled = true
+emission = Color( 1, 0, 0, 1 )
+emission_energy = 4.0
+emission_operator = 0
+emission_on_uv2 = false
+
 [node name="Game" type="Spatial"]
 
-[node name="StaticBody" type="StaticBody" parent="."]
+[node name="Ground" type="StaticBody" parent="."]
+visible = false
 
-[node name="MeshInstance" type="MeshInstance" parent="StaticBody"]
+[node name="MeshInstance" type="MeshInstance" parent="Ground"]
 mesh = SubResource( 1 )
 material/0 = null
 
-[node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
+[node name="CollisionShape" type="CollisionShape" parent="Ground"]
 shape = SubResource( 2 )
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
+script = ExtResource( 2 )
 
 [node name="Pivot" type="Position3D" parent="Player"]
 
 [node name="Camera" type="Camera" parent="Player/Pivot"]
 transform = Transform( -1, 5.65818e-08, -3.20891e-07, 0, 0.984808, 0.173648, 3.25841e-07, 0.173648, -0.984808, 0, 5, -8 )
+
+[node name="RayCast" type="RayCast" parent="Player/Pivot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0 )
+enabled = true
+cast_to = Vector3( 0, 0, 100 )
+script = ExtResource( 5 )
+
+[node name="Reticule" type="Position3D" parent="Player/Pivot/RayCast"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 50 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Player/Pivot/RayCast/Reticule"]
+mesh = SubResource( 3 )
+material/0 = SubResource( 4 )
+
+[node name="lowpoly_scene" parent="." instance=ExtResource( 3 )]
+transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0 )
+
+[node name="Target_container" type="Spatial" parent="."]
+
+[node name="Target" parent="Target_container" groups=[
+"target",
+] instance=ExtResource( 4 )]
+transform = Transform( 0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, -27, 4, 9 )
+
+[node name="Target2" parent="Target_container" groups=[
+"target",
+] instance=ExtResource( 4 )]
+transform = Transform( 1.19249e-08, 0, -1, 0, 1, 0, 1, 0, 1.19249e-08, -4.8895, 2.76477, -43.0677 )
+
+[node name="Target3" parent="Target_container" groups=[
+"target",
+] instance=ExtResource( 4 )]
+transform = Transform( 0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, -20.3616, 2.25034, -24.3983 )
+
+[node name="Target4" parent="Target_container" groups=[
+"target",
+] instance=ExtResource( 4 )]
+transform = Transform( 0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, -45.7421, 3.99184, -28.9747 )
+
+[node name="Target5" parent="Target_container" groups=[
+"target",
+] instance=ExtResource( 4 )]
+transform = Transform( -0.766044, 0, -0.642788, 0, 1, 0, 0.642788, 0, -0.766044, 10.3103, 1.45792, -24.3983 )
+
+[node name="NPC" parent="." instance=ExtResource( 6 )]
+transform = Transform( -0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, 3.16286, 0, 3.26953 )
+script = ExtResource( 7 )
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Background" type="ColorRect" parent="UI"]
+anchor_right = 1.0
+margin_bottom = 30.0
+color = Color( 0, 0, 0, 0.470588 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Score" type="Label" parent="UI/Background"]
+margin_right = 500.0
+margin_bottom = 30.0
+text = "Score:"
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Timer" type="Label" parent="UI/Background"]
+margin_left = 512.0
+margin_right = 1014.0
+margin_bottom = 30.0
+text = "Timer: 00:00"
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Dialogue" type="Control" parent="UI"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 8 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="ColorRect" parent="UI/Dialogue"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -30.0
+color = Color( 0, 0, 0, 0.501961 )
+
+[node name="Text" type="RichTextLabel" parent="UI/Dialogue/Background"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -25.0
+margin_bottom = 5.0
+bbcode_enabled = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
